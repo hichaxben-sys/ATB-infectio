@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antibiothérapie — Réanimation</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f12;--surf:#13161a;--surf2:#1a1e24;--bord:#252932;--bord2:#2e3540;--txt:#e8eaf0;--txt2:#8a94a6;--txt3:#4a5568;--blue:#4fc3f7;--blue2:#0288d1;--green:#66bb6a;--amber:#ffa726;--red:#ef5350;--purple:#ab47bc;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:100vh}
+.topbar{background:var(--surf);border-bottom:1px solid var(--bord);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.badge{background:#c62828;color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;padding:3px 9px;border-radius:4px;letter-spacing:.08em}
+h1{font-size:15px;font-weight:500;margin-left:10px}
+.nav{display:flex;background:var(--surf2);border-bottom:1px solid var(--bord);position:sticky;top:49px;z-index:100}
+.ntab{flex:1;padding:11px 6px;text-align:center;font-size:12px;color:var(--txt2);cursor:pointer;border-bottom:2px solid transparent;font-family:var(--mono)}
+.ntab.on{color:var(--txt);border-bottom-color:#c62828;font-weight:600}
+.page{display:none;padding:14px 18px 80px;max-width:1100px;margin:0 auto}
+.page.on{display:block}
+.sec{background:var(--surf);border:1px solid var(--bord);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.stitle{font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txt2);margin-bottom:12px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:10px;color:var(--txt3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em}
+.fg select,.fg input{background:var(--surf2);border:1px solid var(--bord);border-radius:6px;color:var(--txt);font-family:var(--mono);font-size:13px;padding:7px 9px;outline:none;width:100%}
+.fg select:focus,.fg input:focus{border-color:var(--blue)}
+.fg select option{background:var(--surf2)}
+.ibox{background:rgba(79,195,247,.07);border:1px solid rgba(79,195,247,.2);border-radius:7px;padding:10px 13px;font-size:12px;color:var(--txt2);line-height:1.7;margin-bottom:10px}
+.wbox{background:rgba(255,167,38,.07);border:1px solid rgba(255,167,38,.2);border-radius:7px;padding:10px 13px;font-size:12px;color:var(--amber);line-height:1.7;margin-bottom:8px}
+.dbox{background:rgba(239,83,80,.07);border:1px solid rgba(239,83,80,.2);border-radius:7px;padding:10px 13px;font-size:12px;color:var(--red);line-height:1.7;margin-bottom:8px}
+.gbox{background:rgba(102,187,106,.07);border:1px solid rgba(102,187,106,.2);border-radius:7px;padding:10px 13px;font-size:12px;color:var(--green);line-height:1.7;margin-bottom:8px}
+.rcard{background:var(--surf2);border:1px solid var(--bord);border-radius:8px;padding:12px;margin-bottom:8px}
+.rcard-t{font-family:var(--mono);font-size:12px;font-weight:600;margin-bottom:5px;display:flex;align-items:center;gap:7px}
+.rcard-b{font-size:12px;color:var(--txt2);line-height:1.7}
+.rcard-b b{color:var(--txt);font-weight:500}
+.rbox{background:var(--surf2);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.rr{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--bord);font-size:13px;gap:10px}
+.rr:last-child{border-bottom:none}
+.bok{background:rgba(102,187,106,.18);color:#66bb6a;font-size:10px;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-weight:600;display:inline-block}
+.bwarn{background:rgba(255,167,38,.18);color:#ffa726;font-size:10px;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-weight:600;display:inline-block}
+.bdanger{background:rgba(239,83,80,.18);color:#ef5350;font-size:10px;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-weight:600;display:inline-block}
+.binfo{background:rgba(79,195,247,.15);color:#4fc3f7;font-size:10px;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-weight:600;display:inline-block}
+/* spectre */
+.sp-wrap{overflow:auto;max-height:70vh;border:1px solid var(--bord);border-radius:8px}
+.sp-table{border-collapse:collapse;white-space:nowrap;width:100%}
+.sp-table th.atb-h{text-align:left;min-width:190px;padding:7px 10px;background:var(--surf2);border:1px solid var(--bord);font-family:var(--mono);font-size:10px;color:var(--txt2);position:sticky;left:0;top:0;z-index:4;font-weight:600}
+.sp-table th.germ-h{padding:5px 3px;border:1px solid var(--bord);background:var(--surf2);font-family:var(--mono);font-size:9px;color:var(--txt3);writing-mode:vertical-rl;min-width:32px;max-width:36px;vertical-align:bottom;height:90px;position:sticky;top:0;z-index:2}
+.sp-table th.germ-h.tgt{background:rgba(79,195,247,.18);color:var(--blue)}
+.sp-table td.atb-n{font-family:var(--mono);font-size:11px;padding:5px 10px;border:1px solid var(--bord);background:var(--surf);position:sticky;left:0;z-index:1;color:var(--txt2);white-space:nowrap}
+.sp-table td.atb-n.sel{color:var(--blue);background:rgba(79,195,247,.05);font-weight:600}
+.sp-table td.sc{padding:4px 3px;border:1px solid var(--bord);text-align:center;font-family:var(--mono);font-weight:700;font-size:11px;min-width:32px}
+.sp-table tr.fam td{background:var(--surf2);font-size:9px;font-family:var(--mono);color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;padding:3px 10px;border:1px solid var(--bord)}
+.cs{background:rgba(102,187,106,.2);color:#66bb6a}
+.ci{background:rgba(255,167,38,.18);color:#ffa726}
+.cr{background:rgba(239,83,80,.12);color:#ef5350}
+.cv{background:rgba(171,71,188,.15);color:#ab47bc}
+.cn{color:var(--txt3)}
+.gap-ok{outline:2px solid var(--green);outline-offset:-2px}
+.gap-part{outline:2px solid var(--amber);outline-offset:-2px}
+.gap-miss{outline:2px solid var(--red);outline-offset:-2px;background:rgba(239,83,80,.22)!important}
+/* ATB pills */
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.pill{background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:var(--blue);font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:20px;display:flex;align-items:center;gap:5px}
+.pill button{background:none;border:none;color:var(--blue);cursor:pointer;font-size:15px;line-height:1}
+.germ-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.gpill{background:rgba(239,83,80,.1);border:1px solid rgba(239,83,80,.22);color:var(--red);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:3px}
+.fbtn{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--bord2);background:transparent;color:var(--txt2);cursor:pointer;font-family:var(--mono)}
+.fbtn.on{background:var(--blue2);border-color:var(--blue2);color:#fff}
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.addrow{display:flex;gap:8px;margin-bottom:6px}
+.addrow select{flex:1}
+.btn{font-family:var(--mono);font-size:11px;font-weight:600;padding:8px 14px;border-radius:6px;border:none;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;background:var(--surf2);color:var(--txt2);border:1px solid var(--bord2)}
+@media(max-width:600px){.r3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center">
+    <span class="badge">ATB</span>
+    <h1>Antibiothérapie & Infections</h1>
+  </div>
+  <span style="font-family:var(--mono);font-size:11px;color:var(--txt2)" id="clock"></span>
+</div>
+
+<div class="nav">
+  <div class="ntab on" id="tab-guide" onclick="showPage('guide')">📋 Guide ATB</div>
+  <div class="ntab" id="tab-spectre" onclick="showPage('spectre')">🔬 Spectres & Trous</div>
+</div>
+
+<!-- ══════════════ PAGE GUIDE ══════════════ -->
+<div class="page on" id="page-guide">
+  <div class="sec">
+    <div class="stitle">🦠 Infection & contexte</div>
+    <div class="r2">
+      <div class="fg">
+        <label>Catégorie d'infection</label>
+        <select id="g-cat">
+          <option value="">— Toutes les infections —</option>
+          <option value="pulm">Pulmonaires</option>
+          <option value="urin">Urinaires</option>
+          <option value="abdo">Abdominales</option>
+          <option value="neuro">Neuro / SNC</option>
+          <option value="cardio">Cardiovasculaires</option>
+          <option value="bacterie">Bactériémies</option>
+          <option value="cut">Cutanées</option>
+          <option value="ost">Ostéo-articulaires</option>
+          <option value="ent">ORL / Dentaire</option>
+          <option value="gyneco">Gynéco-obstétricale</option>
+          <option value="fongique">Fongiques</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Infection</label>
+        <select id="g-inf">
+          <option value="">— Choisir une infection —</option>
+        </select>
+      </div>
+    </div>
+    <div class="r3">
+      <div class="fg">
+        <label>Profil de résistance</label>
+        <select id="g-resist">
+          <option value="std">Standard / Communautaire</option>
+          <option value="noso">Nosocomial (≥48h)</option>
+          <option value="blse">BLSE</option>
+          <option value="samr">SARM</option>
+          <option value="epc">EPC / Carbapénémase</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Terrain</label>
+        <select id="g-terrain">
+          <option value="std">Standard</option>
+          <option value="immuno">Immunodéprimé</option>
+          <option value="diab">Diabétique</option>
+          <option value="cirr">Cirrhotique</option>
+          <option value="drepa">Drépanocytaire / asplénie</option>
+          <option value="gros">Grossesse</option>
+          <option value="age">Sujet âgé (>75 ans)</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Allergie pénicilline</label>
+        <select id="g-allergie">
+          <option value="non">Non</option>
+          <option value="oui">Oui (documentée)</option>
+        </select>
+      </div>
+    </div>
+    <div class="r2">
+      <div class="fg">
+        <label>Fonction rénale</label>
+        <select id="g-renal">
+          <option value="ok">DFG > 60 mL/min</option>
+          <option value="mod">DFG 30–60 (modérée)</option>
+          <option value="sev">DFG 15–30 (sévère)</option>
+          <option value="eer">EER / Dialyse</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <button class="btn" style="background:#c62828;color:#fff;border:none;width:100%" onclick="afficherReco()">Afficher les recommandations</button>
+      </div>
+    </div>
+  </div>
+  <div id="g-result"></div>
+</div>
+
+<!-- ══════════════ PAGE SPECTRE ══════════════ -->
+<div class="page" id="page-spectre">
+  <div class="sec">
+    <div class="stitle">🕳 Analyse du trou de spectre par infection</div>
+    <div class="r2">
+      <div class="fg">
+        <label>Infection traitée</label>
+        <select id="s-inf">
+          <option value="">— Choisir —</option>
+          <option value="pac">Pneumonie communautaire (PAC)</option>
+          <option value="pavm">PAVM / PAV</option>
+          <option value="pleurite">Pleurite / Empyème</option>
+          <option value="abces_pulm">Abcès pulmonaire</option>
+          <option value="pyelo">Pyélonéphrite / Urosepsis</option>
+          <option value="itu">IU / Cystite sondée</option>
+          <option value="prostatite">Prostatite aiguë</option>
+          <option value="perit">Péritonite</option>
+          <option value="cholangite">Cholangite / Angiocholite</option>
+          <option value="abdominal">Abcès intra-abdominal</option>
+          <option value="menin">Méningite bactérienne</option>
+          <option value="abces_cerv">Abcès cérébral</option>
+          <option value="endo">Endocardite infectieuse</option>
+          <option value="bacterie">Bactériémie / Sepsis</option>
+          <option value="cath_inf">Infection sur cathéter (ILC)</option>
+          <option value="fasciite">Fasciite nécrosante</option>
+          <option value="erysipele">Érysipèle / Cellulite</option>
+          <option value="osteite">Ostéite / Ostéomyélite</option>
+          <option value="arthrite">Arthrite septique</option>
+          <option value="spondylo">Spondylodiscite</option>
+          <option value="candida_inv">Candidose invasive</option>
+          <option value="aspergillose">Aspergillose invasive</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Profil de résistance</label>
+        <select id="s-resist">
+          <option value="std">Standard / Communautaire</option>
+          <option value="noso">Nosocomial</option>
+          <option value="blse">BLSE</option>
+          <option value="samr">SARM</option>
+          <option value="epc">EPC / Carbapénémase</option>
+        </select>
+      </div>
+    </div>
+    <div id="s-germes-row" style="display:none;margin-bottom:10px">
+      <div style="font-size:10px;color:var(--txt3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Germes incriminés pour cette infection</div>
+      <div class="germ-pills" id="s-germes-pills"></div>
+    </div>
+    <div class="addrow">
+      <select id="s-atb-add">
+        <option value="">— Ajouter un ATB utilisé —</option>
+      </select>
+      <button class="btn" onclick="addATB()">+ Ajouter</button>
+    </div>
+    <div class="pills" id="s-atb-pills"></div>
+    <div id="s-gap-result"></div>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">🔬 Tableau des spectres</div>
+    <div class="ibox" style="margin-bottom:10px">
+      <b style="color:var(--green)">S</b> Sensible &nbsp;|&nbsp;
+      <b style="color:var(--amber)">I</b> Intermédiaire &nbsp;|&nbsp;
+      <b style="color:var(--red)">R</b> Résistant &nbsp;|&nbsp;
+      <b style="color:var(--purple)">V</b> Variable &nbsp;|&nbsp;
+      <b style="color:var(--txt3)">—</b> N/A &nbsp;|&nbsp;
+      Colonnes <b style="color:var(--blue)">surlignées</b> = germes cibles sélectionnés
+    </div>
+    <div class="filter-bar">
+      <button class="fbtn on" onclick="setGermFilter('all',this)">Tous</button>
+      <button class="fbtn" onclick="setGermFilter('gp',this)">Gram +</button>
+      <button class="fbtn" onclick="setGermFilter('gn',this)">Gram −</button>
+      <button class="fbtn" onclick="setGermFilter('an',this)">Anaérobies</button>
+      <button class="fbtn" onclick="setGermFilter('at',this)">Atypiques</button>
+      <button class="fbtn" onclick="setGermFilter('fo',this)">Levures</button>
+    </div>
+    <div class="sp-wrap">
+      <table class="sp-table" id="sp-table"></table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════ DONNÉES ══════════
+
+var INFECTIONS = [
+  {id:'pac', cat:'pulm', label:'Pneumonie communautaire (PAC)',
+   germes:'S. pneumoniae, H. influenzae, Mycoplasma, Legionella, Chlamydophila',
+   recs:[
+    {tag:'Légère–modérée (ambulatoire)',cls:'bok',conds:['std'],txt:'Amoxicilline 1g/8h PO'},
+    {tag:'Modérée (hospitalisée)',cls:'bok',conds:['std'],txt:'Amoxicilline-clavulanate 1g/8h IV ou Ceftriaxone 2g/j IV'},
+    {tag:'Sévère (réa)',cls:'bdanger',conds:['std'],txt:'Ceftriaxone 2g/j IV + Azithromycine 500mg/j — ou Ceftriaxone + Lévofloxacine 500mg/j si Légionella'},
+    {tag:'BLSE',cls:'bwarn',conds:['blse'],txt:'Méropénème 1g/8h + Lévofloxacine si atypiques'},
+    {tag:'Allergie pénicilline',cls:'bwarn',conds:['aller'],txt:'Lévofloxacine 500mg/j IV ou Moxifloxacine 400mg/j IV'},
+    {tag:'Immunodéprimé',cls:'bwarn',conds:['immuno'],txt:'C3G + Azithromycine + Cotrimoxazole (couvrir PCP) ± Échinocandine si neutropénie'},
+    {tag:'Grossesse',cls:'bwarn',conds:['gros'],txt:'Amoxicilline 1g/8h IV (CI : FQ, macrolides)'},
+   ],
+   duree:'5–7j légère, 7–10j sévère, 14–21j Légionellose',
+   renal:'Lévofloxacine : 500mg J1 puis 250mg/j si DFG<50',
+   notes:'Ag urinaire Pneumocoque + Légionella en urgence si PAC sévère. ECBC + hémocultures x2. Score PSI/CURB-65.'},
+
+  {id:'pavm', cat:'pulm', label:'PAVM / PAV (Pneumonie sous ventilation)',
+   germes:'P. aeruginosa, Klebsiella, SARM, Acinetobacter, entérobactéries',
+   recs:[
+    {tag:'PAV précoce (<5j) sans FDR',cls:'bok',conds:['std'],txt:'Céfépime 2g/8h ou Ceftriaxone 2g/j'},
+    {tag:'PAV tardive ou FDR résistance',cls:'bok',conds:['std','noso'],txt:'Pipéracilline-Tazobactam 4g/8h IVSE'},
+    {tag:'PAV sévère / choc septique',cls:'bdanger',conds:['std','noso'],txt:'Méropénème 2g/8h (perf. étendue 3h) + Amikacine 25mg/kg J1–J3'},
+    {tag:'BLSE documenté',cls:'bwarn',conds:['blse'],txt:'Méropénème 2g/8h en perf. étendue 3h ± Amikacine'},
+    {tag:'SARM documenté',cls:'bwarn',conds:['samr'],txt:'Vancomycine IVSE (AUC 400–600) ou Linézolide 600mg/12h'},
+    {tag:'EPC / Carbapénémase',cls:'bdanger',conds:['epc'],txt:'Ceftazidime-avibactam 2.5g/8h ± Aztréonam si MBL — Consultation infectiologue OBLIGATOIRE'},
+    {tag:'Allergie pénicilline sévère',cls:'bwarn',conds:['aller'],txt:'Aztréonam 2g/8h + Amikacine + Vancomycine'},
+    {tag:'Immunodéprimé / neutropénie',cls:'bwarn',conds:['immuno'],txt:'Méropénème + Amikacine + Vancomycine + Échinocandine si instable'},
+   ],
+   duree:'8j standard, 15j si SARM ou Pseudomonas non documenté',
+   renal:'Vancomycine : AUC/CMI cible ≥400. Amikacine : dose unique, résidu <2.5. Méropénème : 1g/8h si DFG<30.',
+   notes:'Désescalade OBLIGATOIRE à J3. ECBC/LBA avant ATB. Score CPIS.'},
+
+  {id:'pleurite', cat:'pulm', label:'Pleurite infectieuse / Empyème pleural',
+   germes:'Streptocoques, S. aureus, BGN, anaérobies (inhalation)',
+   recs:[
+    {tag:'Standard',cls:'bok',conds:['std'],txt:'Amoxicilline-clavulanate 2g/8h IV'},
+    {tag:'Sévère',cls:'bdanger',conds:['std'],txt:'Pipéracilline-Tazobactam 4g/8h + Métronidazole 500mg/8h'},
+    {tag:'SARM',cls:'bwarn',conds:['samr'],txt:'Vancomycine IVSE + Pip-Tazo'},
+    {tag:'Nosocomial',cls:'bwarn',conds:['noso'],txt:'Méropénème 2g/8h + Vancomycine'},
+   ],
+   duree:'3–6 semaines selon drainage',renal:'Adapter selon DFG.',
+   notes:'Drainage (chirurgical ou drain thoracique) INDISPENSABLE. ATB seule insuffisante.'},
+
+  {id:'abces_pulm', cat:'pulm', label:'Abcès pulmonaire',
+   germes:'Anaérobies, S. aureus, Klebsiella (alcoolique/diabétique), polymicrobien',
+   recs:[
+    {tag:'Standard',cls:'bok',conds:['std'],txt:'Amoxicilline-clavulanate 2g/8h IV puis relais PO'},
+    {tag:'Inhalation / anaérobies++',cls:'bok',conds:['std'],txt:'Clindamycine 600mg/8h + C3G IV'},
+    {tag:'SARM',cls:'bwarn',conds:['samr'],txt:'Vancomycine IVSE ou Oxacilline 12g/j si SAMS'},
+    {tag:'Diabétique / Klebsiella',cls:'bwarn',conds:['diab'],txt:'C3G IV ou Méropénème si BLSE'},
+    {tag:'Immunodéprimé',cls:'bwarn',conds:['immuno'],txt:'Méropénème + Vancomycine + Échinocandine si neutropénie'},
+   ],
+   duree:'4–6 semaines minimum',renal:'Adapter selon DFG.',
+   notes:'Drainage percutané si >3cm. Bronchoscopie diagnostique. Éliminer tumeur obstructive.'},
+
+  {id:'pyelo', cat:'urin', label:'Pyélonéphrite / Urosepsis',
+   germes:'E. coli (70%), Klebsiella, Proteus, Enterococcus',
+   recs:[
+    {tag:'PNA non compliquée',cls:'bok',conds:['std'],txt:'Ceftriaxone 2g/j IV'},
+    {tag:'Urosepsis / choc septique',cls:'bdanger',conds:['std'],txt:'Ceftriaxone 2g/j + Amikacine 25mg/kg J1–J3'},
+    {tag:'BLSE',cls:'bwarn',conds:['blse'],txt:'Ertapénème 1g/j IV (stable) ou Méropénème 1g/8h (choc)'},
+    {tag:'Enterococcus',cls:'bwarn',conds:['std'],txt:'Amoxicilline 3g/j + Gentamicine si sensible'},
+    {tag:'Allergie pénicilline',cls:'bwarn',conds:['aller'],txt:'Aztréonam 2g/8h + Amikacine'},
+    {tag:'Grossesse',cls:'bwarn',conds:['gros'],txt:'Ceftriaxone 2g/j IV — hospitalisation systématique'},
+    {tag:'Cirrhotique',cls:'bwarn',conds:['cirr'],txt:'C3G + Albumine 1.5g/kg J1 (prévention SHR)'},
+    {tag:'Diabétique',cls:'bwarn',conds:['diab'],txt:'C3G + Amikacine. Éliminer abcès rénal (écho/TDM)'},
+    {tag:'Sujet âgé',cls:'bwarn',conds:['age'],txt:'C3G IV. Éviter FQ (encéphalopathie). Éliminer obstruction.'},
+   ],
+   duree:'10–14j (7j si FQ possible)',renal:'Amikacine : résidu <2.5. Ertapénème : pas d\'ajust si DFG>30.',
+   notes:'Écho rénale urgente si fièvre à 72h. Drainage si obstacle. ECBU avant ATB.'},
+
+  {id:'itu', cat:'urin', label:'IU / Cystite sondée (réa)',
+   germes:'E. coli, Klebsiella, Pseudomonas, Enterococcus, Candida',
+   recs:[
+    {tag:'IU sondée (ECBU requis)',cls:'bok',conds:['std'],txt:'Cotrimoxazole 960mg/12h PO ou FQ si sensible'},
+    {tag:'BLSE',cls:'bwarn',conds:['blse'],txt:'Ertapénème 1g/j IM/IV'},
+    {tag:'Grossesse',cls:'bwarn',conds:['gros'],txt:'Fosfomycine 3g PO (C1/C3) ou Céfixime. CI : FQ, cotrimoxazole T3'},
+    {tag:'Sujet âgé',cls:'bwarn',conds:['age'],txt:'Éviter FQ. Cotrimoxazole ou C3G selon ECBU.'},
+   ],
+   duree:'7j femme, 14j homme / sonde',renal:'Cotrimoxazole : CI si DFG<15.',
+   notes:'Retirer/changer la sonde = traitement principal. IU asymptomatique en réa = ne pas traiter.'},
+
+  {id:'prostatite', cat:'urin', label:'Prostatite aiguë',
+   germes:'E. coli, Klebsiella, Pseudomonas (nosocomial)',
+   recs:[
+    {tag:'Standard',cls:'bok',conds:['std'],txt:'Ciprofloxacine 400mg/12h IV puis 500mg/12h PO'},
+    {tag:'Alternative',cls:'bok',conds:['std'],txt:'Cotrimoxazole 960mg/12h PO (après ECBU)'},
+    {tag:'BLSE',cls:'bwarn',conds:['blse'],txt:'Ertapénème 1g/j puis relais PO si sensibilité FQ'},
+    {tag:'Nosocomial / sonde',cls:'bwarn',conds:['noso'],txt:'Méropénème + FQ si sensible'},
+   ],
+   duree:'4–6 semaines',renal:'FQ : adapter si DFG<30.',
+   notes:'ECBU + hémocultures avant ATB. Écho prostatique si abcès suspecté. Relais PO précoce si FQ actif.'},
+
+  {id:'perit', cat:'abdo', label:'Péritonite',
+   germes:'E. coli, Klebsiella, Bacteroides, Enterococcus, Candida (tertiaire)',
+   recs:[
+    {tag:'Communautaire',cls:'bok',conds:['std'],txt:'Amoxicilline-clavulanate 2g/8h + Gentamicine J1–J3'},
+    {tag:'Sévère (réa)',cls:'bdanger',conds:['std'],txt:'Pipéracilline-Tazobactam 4g/8h ou Méropénème 2g/8h'},
+    {tag:'BLSE',cls:'bwarn',conds:['blse'],txt:'Méropénème 2g/8h + Métronidazole 500mg/8h si anaérobies non couverts'},
+    {tag:'EPC',cls:'bdanger',conds:['epc'],txt:'Ceftazidime-avibactam + Métronidazole — Consultation infectiologue'},
+    {tag:'Péritonite tertiaire (Candida)',cls:'bwarn',conds:['noso'],txt:'Méropénème + Vancomycine + Échinocandine (Caspofungine 70→50mg/j)'},
+    {tag:'Péritonite bactérienne spontanée (cirrhose)',cls:'bwarn',conds:['cirr'],txt:'Ceftriaxone 2g/j + Albumine 1.5g/kg J1 + 1g/kg J3'},
+    {tag:'Immunodéprimé',cls:'bwarn',conds:['immuno'],txt:'Méropénème + Vancomycine + Échinocandine empirique'},
+   ],
+   duree:'5–7j si source contrôlée chirurgicalement. PBS : 5j.',
+   renal:'Méropénème : réduire si DFG<30. Pip-Tazo : réduire si DFG<20.',
+   notes:'CONTRÔLE SOURCE PRIORITAIRE. Hémocultures + liquide péritonéal avant ATB.'},
+
+  {id:'cholangite', cat:'abdo', label:'Cholangite / Angiocholite',
+   germes:'E. coli, Klebsiella, Enterococcus, anaérobies, Pseudomonas (nosocomial)',
+   recs:[
+    {tag:'Légère–modérée',cls:'bok',conds:['std'],txt:'Amoxicilline-clavulanate 2g/8h ou C3G + Métronidazole'},
+    {tag:'Sévère (Tokyo III)',cls:'bdanger',conds:['std'],txt:'Pipéracilline-Tazobactam 4g/8h + Amikacine J1'},
+    {tag:'BLSE',cls:'bwarn',conds:['blse'],txt:'Méropénème 2g/8h'},
+    {tag:'Nosocomial / endoprothèse',cls:'bwarn',conds:['noso'],txt:'Méropénème + Vancomycine (couvrir Enterococcus)'},
+   ],
+   duree:'4–7j + drainage biliaire',renal:'Adapter selon DFG.',
+   notes:'Drainage biliaire = traitement principal (CPRE ou drainage percutané). ATB = support.'},
+
+  {id:'abdominal', cat:'abdo', label:'Abcès intra-abdominal',
+   germes:'BGN, anaérobies, Enterococcus, Candida (si immunodéprimé)',
+   recs:[
+    {tag:'Standard',cls:'bok',conds:['std'],txt:'Méropénème 2g/8h ou Pipéracilline-Tazobactam 4g/8h'},
+    {tag:'Communautaire modéré',cls:'bok',conds:['std'],txt:'Amoxicilline-clavulanate 2g/8h + Gentamicine J1'},
+    {tag:'BLSE',cls:'bwarn',conds:['blse'],txt:'Méropénème 2g/8h'},
+    {tag:'Immunodéprimé',cls:'bwarn',conds:['immuno'],txt:'Méropénème + Échinocandine si Candida suspecté'},
+   ],
+   duree:'2–3 semaines ou jusqu\'à drainage complet',renal:'Adapter selon DFG.',
+   notes:'Drainage percutané ou chirurgical OBLIGATOIRE. Culture liquide abdominal.'},
+
+  {id:'menin', cat:'neuro', label:'Méningite bactérienne',
+   germes:'S. pneumoniae, N. meningitidis, Listeria (>50 ans), H. influenzae',
+   recs:[
+    {tag:'Standard adulte',cls:'bdanger',conds:['std'],txt:'Ceftriaxone 4g/j IV (2g/12h) + Dexaméthasone 10mg/6h x4j (avant ou avec 1ère dose)'},
+    {tag:'Si Listeria possible (>50ans, immunodép., grossesse)',cls:'bok',conds:['std','immuno','gros','age'],txt:'Ceftriaxone 4g/j + Amoxicilline 2g/4h IV'},
+    {tag:'Pneumocoque résistant',cls:'bwarn',conds:['samr'],txt:'Ceftriaxone 6g/j + Vancomycine 60mg/kg/j IVSE ± Rifampicine 600mg/j'},
+    {tag:'Nosocomial / post-neurochir.',cls:'bwarn',conds:['noso'],txt:'Méropénème 2g/8h + Vancomycine'},
+    {tag:'Allergie pénicilline',cls:'bwarn',conds:['aller'],txt:'Chloramphénicol 1g/6h IV + Cotrimoxazole si Listeria'},
+    {tag:'Méningocoque',cls:'bok',conds:['std'],txt:'Ceftriaxone 2g/j. Isolement gouttelettes 24h. Déclaration obligatoire + prophylaxie entourage'},
+   ],
+   duree:'10–14j pneumocoque, 7j méningocoque, 21j Listeria, 14j Gram– nosocomial',
+   renal:'Amoxicilline : réduire si DFG<30.',
+   notes:'ATB EN URGENCE. Dexaméthasone AVANT ou simultanée à la 1ère dose ATB.'},
+
+  {id:'abces_cerv', cat:'neuro', label:'Abcès cérébral',
+   germes:'Streptocoques viridans, S. aureus, anaérobies, BGN (nosocomial)',
+   recs:[
+    {tag:'Standard (foyer ORL/dentaire)',cls:'bok',conds:['std'],txt:'Ceftriaxone 6g/j + Métronidazole 1.5g/j'},
+    {tag:'Post-chirurgical',cls:'bwarn',conds:['noso'],txt:'Méropénème 6g/j + Vancomycine'},
+    {tag:'SARM',cls:'bwarn',conds:['samr'],txt:'Vancomycine + Méropénème + Métronidazole'},
+    {tag:'Immunodéprimé / VIH (CD4<100)',cls:'bwarn',conds:['immuno'],txt:'Céfotaxime + Pyriméthamine + Sulfadiazine (toxoplasmose) + Ampho B lipos.'},
+   ],
+   duree:'6–8 semaines minimum',renal:'Adapter selon DFG.',
+   notes:'Neurochirurgie pour biopsie/drainage. IRM cérébrale. Bilan foyer primaire (cardio, ORL, dentaire).'},
+
+  {id:'endo', cat:'cardio', label:'Endocardite infectieuse',
+   germes:'Streptocoques (viridans), S. aureus (SAMS/SARM), Enterococcus, Candida',
+   recs:[
+    {tag:'Streptocoque sensible',cls:'bok',conds:['std'],txt:'Amoxicilline 12g/j IVSE + Gentamicine 3mg/kg/j x14j'},
+    {tag:'SAMS — valve native',cls:'bok',conds:['std'],txt:'Oxacilline 12g/j IVSE x4–6 semaines'},
+    {tag:'SAMS — allergie pénicilline',cls:'bwarn',conds:['aller'],txt:'Vancomycine 30–60mg/kg/j IVSE'},
+    {tag:'SARM — valve native',cls:'bwarn',conds:['samr'],txt:'Vancomycine IVSE (AUC/CMI ≥400) x6 semaines'},
+    {tag:'SARM — valve prothétique',cls:'bwarn',conds:['samr'],txt:'Vancomycine + Rifampicine 600mg/j + Gentamicine 3mg/kg/j x2 semaines'},
+    {tag:'Enterococcus faecalis',cls:'bok',conds:['std'],txt:'Amoxicilline 12g/j + Gentamicine x4–6 semaines'},
+    {tag:'ERV / E. faecium résistant',cls:'bdanger',conds:['epc'],txt:'Daptomycine 10mg/kg/j + Ampicilline haute dose'},
+    {tag:'Candida',cls:'bdanger',conds:['std'],txt:'Caspofungine 70→50mg/j x6 semaines + chirurgie souvent nécessaire'},
+   ],
+   duree:'4–6 semaines valve native, 6 semaines valve prothétique',
+   renal:'Gentamicine : résidus quotidiens. Vancomycine : AUC cible.',
+   notes:'ETT + ETO (diagnostic). Hémocultures x3 avant ATB. TDM corps entier (emboles). Bilan chirurgical.'},
+
+  {id:'bacterie', cat:'bacterie', label:'Bactériémie / Sepsis sans foyer',
+   germes:'S. aureus, E. coli, Klebsiella, P. aeruginosa, Enterococcus',
+   recs:[
+    {tag:'Sepsis communautaire',cls:'bok',conds:['std'],txt:'Ceftriaxone 2g/j + Amikacine 25mg/kg J1'},
+    {tag:'Sepsis nosocomial / choc',cls:'bdanger',conds:['noso'],txt:'Méropénème 2g/8h + Amikacine J1–J3'},
+    {tag:'BLSE',cls:'bwarn',conds:['blse'],txt:'Méropénème 2g/8h ± Amikacine'},
+    {tag:'SARM',cls:'bwarn',conds:['samr'],txt:'Vancomycine IVSE (AUC 400–600) ou Daptomycine 10mg/kg/j'},
+    {tag:'EPC',cls:'bdanger',conds:['epc'],txt:'Ceftazidime-avibactam ou Imipénème-rélébactam — Consultation infectiologue'},
+    {tag:'Cirrhotique',cls:'bwarn',conds:['cirr'],txt:'C3G + Albumine 1.5g/kg. Éliminer PBS, IU, pneumonie'},
+    {tag:'Immunodéprimé / neutropénie',cls:'bwarn',conds:['immuno'],txt:'Méropénème + Vancomycine + Échinocandine si instable'},
+    {tag:'Drépanocytaire / asplénie',cls:'bwarn',conds:['drepa'],txt:'C3G IV (couvrir pneumocoque, méningocoque, Haemophilus)'},
+    {tag:'Allergie pénicilline',cls:'bwarn',conds:['aller'],txt:'Aztréonam 2g/8h + Amikacine + Vancomycine'},
+   ],
+   duree:'7–14j selon foyer identifié',
+   renal:'Vancomycine : AUC cible. Amikacine : dose unique, résidu <2.5.',
+   notes:'Hémocultures x2–3 avant ATB. Recherche foyer primaire (écho, TDM). Retrait cathéter si ILC.'},
+
+  {id:'cath_inf', cat:'bacterie', label:'Infection sur cathéter (ILC)',
+   germes:'SCN, S. aureus, Candida, BGN (immunodéprimé)',
+   recs:[
+    {tag:'SCN (Staph. coagulase-nég.)',cls:'bok',conds:['std'],txt:'Vancomycine IVSE (AUC 400–600). Retrait cathéter OBLIGATOIRE'},
+    {tag:'S. aureus (SAMS)',cls:'bok',conds:['std'],txt:'Oxacilline 12g/j IV. Retrait cathéter. Écho cardiaque'},
+    {tag:'SARM',cls:'bwarn',conds:['samr'],txt:'Vancomycine IVSE ou Daptomycine 10mg/kg/j'},
+    {tag:'Candida',cls:'bwarn',conds:['std'],txt:'Échinocandine (Caspofungine 70→50mg/j). Retrait cathéter OBLIGATOIRE. Fond d\'œil'},
+    {tag:'Immunodéprimé / neutropénie',cls:'bwarn',conds:['immuno'],txt:'Méropénème + Vancomycine + Échinocandine si instable'},
+   ],
+   duree:'5–7j SCN (retrait), 14j S. aureus, 14j Candida après hémoculture négative',
+   renal:'Vancomycine : AUC cible.',
+   notes:'Différentiel temps positif >2h sang périphérique vs cathéter = ILC. Fond d\'œil si Candida. Écho si S. aureus.'},
+
+  {id:'fasciite', cat:'cut', label:'Fasciite nécrosante',
+   germes:'Type 1 polymicrobien : BGN + anaérobies + CG+. Type 2 : Streptocoque A',
+   recs:[
+    {tag:'Type 1 polymicrobien',cls:'bdanger',conds:['std'],txt:'Pipéracilline-Tazobactam 4g/8h + Clindamycine 600mg/8h (anti-toxine)'},
+    {tag:'Type 2 (Streptocoque A)',cls:'bdanger',conds:['std'],txt:'Pénicilline G 4MUI/4h IV + Clindamycine 600mg/8h'},
+    {tag:'SARM / choc toxinique',cls:'bdanger',conds:['samr'],txt:'Méropénème + Clindamycine + Vancomycine + IgIV 2g/kg J1'},
+    {tag:'Diabétique (pied)',cls:'bwarn',conds:['diab'],txt:'Méropénème + Vancomycine + Métronidazole. Bilan vasculaire urgence'},
+   ],
+   duree:'14–21j minimum',renal:'Adapter selon DFG.',
+   notes:'URGENCE CHIRURGICALE — débridement immédiat et répété toutes les 24–48h. Clindamycine = inhibiteur de toxines.'},
+
+  {id:'erysipele', cat:'cut', label:'Érysipèle / Cellulite infectieuse',
+   germes:'Streptocoque A (principal), S. aureus (si bulleux/purulent)',
+   recs:[
+    {tag:'Érysipèle simple',cls:'bok',conds:['std'],txt:'Amoxicilline 3g/j PO ou 6g/j IV si sévère'},
+    {tag:'Cellulite purulente (S. aureus)',cls:'bok',conds:['std'],txt:'Amoxicilline-clavulanate 1g/8h IV'},
+    {tag:'SARM',cls:'bwarn',conds:['samr'],txt:'Vancomycine IVSE ou Daptomycine 6mg/kg/j'},
+    {tag:'Allergie pénicilline',cls:'bwarn',conds:['aller'],txt:'Pristinamycine 3g/j PO ou Clindamycine 600mg/8h IV'},
+    {tag:'Diabétique (pied)',cls:'bwarn',conds:['diab'],txt:'Amoxicilline-clavulanate IV. Bilan vasculaire. Éliminer fasciite nécrosante'},
+    {tag:'Grossesse',cls:'bwarn',conds:['gros'],txt:'Amoxicilline 6g/j IV. CI : clindamycine T1'},
+   ],
+   duree:'7–14j',renal:'Adapter selon DFG.',
+   notes:'Marquer les berges au feutre. Élévation du membre. AINS déconseillés. Traiter facteur favorisant (tinea pedis).'},
+
+  {id:'osteite', cat:'ost', label:'Ostéite / Ostéomyélite',
+   germes:'S. aureus (SAMS/SARM), BGN (diabétique), Streptocoques, Salmonella (drépanocytaire)',
+   recs:[
+    {tag:'SAMS',cls:'bok',conds:['std'],txt:'Oxacilline 12g/j IVSE puis relais Cloxacilline PO'},
+    {tag:'SARM',cls:'bwarn',conds:['samr'],txt:'Vancomycine IVSE + Rifampicine 600mg/j (jamais en monothérapie)'},
+    {tag:'BGN (diabétique/nosocomial)',cls:'bwarn',conds:['noso','diab'],txt:'C3G IV ou Méropénème si BLSE'},
+    {tag:'Drépanocytaire (Salmonella)',cls:'bwarn',conds:['drepa'],txt:'Ceftriaxone 2g/j IV'},
+    {tag:'Ostéite chronique sur matériel',cls:'bwarn',conds:['std'],txt:'ATB selon antibiogramme + Rifampicine si staphylocoque. Avis orthopédique'},
+   ],
+   duree:'6 semaines (relais PO précoce possible si bonne biodisponibilité)',
+   renal:'Rifampicine : inducteur enzymatique (interactions médicamenteuses ++).',
+   notes:'Biopsie osseuse avant ATB si possible. Chirurgie si séquestre ou matériel infecté. Rifampicine jamais en monothérapie.'},
+
+  {id:'arthrite', cat:'ost', label:'Arthrite septique',
+   germes:'S. aureus (adulte), Streptocoques, Gonocoque (jeune adulte), BGN',
+   recs:[
+    {tag:'SAMS (adulte)',cls:'bok',conds:['std'],txt:'Oxacilline 2g/4h IV ou Céfazoline 2g/8h'},
+    {tag:'SARM',cls:'bwarn',conds:['samr'],txt:'Vancomycine IVSE'},
+    {tag:'Gonocoque (jeune adulte sexuellement actif)',cls:'bok',conds:['std'],txt:'Ceftriaxone 2g/j IV x7j puis Céfixime PO'},
+    {tag:'BGN (nourrisson, sujet âgé, nosocomial)',cls:'bwarn',conds:['noso','age'],txt:'C3G + Amikacine J1'},
+   ],
+   duree:'3–4 semaines (SAMS), 7j gonocoque',renal:'Adapter selon DFG.',
+   notes:'Ponction articulaire EN URGENCE. Arthroscopie si hanche ou épaule. Mobilisation précoce.'},
+
+  {id:'spondylo', cat:'ost', label:'Spondylodiscite infectieuse',
+   germes:'S. aureus, BGN, Brucella (endémique), Mycobacterium tuberculosis',
+   recs:[
+    {tag:'SAMS',cls:'bok',conds:['std'],txt:'Oxacilline 12g/j IVSE puis relais PO long'},
+    {tag:'SARM',cls:'bwarn',conds:['samr'],txt:'Vancomycine IVSE + Rifampicine 600mg/j'},
+    {tag:'BGN',cls:'bok',conds:['std'],txt:'C3G IV puis relais FQ si sensible (bonne biodisponibilité osseuse)'},
+    {tag:'Brucella (Maroc, Afrique du Nord)',cls:'bwarn',conds:['std'],txt:'Doxycycline 200mg/j + Rifampicine 600mg/j x3–6 mois'},
+    {tag:'Tuberculose (Pott)',cls:'bdanger',conds:['std'],txt:'Rifampicine + Isoniazide + Ethambutol + Pyrazinamide x2 mois puis 4–10 mois RI'},
+   ],
+   duree:'6 semaines minimum (SAMS). Tuberculose : 6–12 mois.',
+   renal:'Rifampicine : inducteur enzymatique. FQ : adapter si DFG<30.',
+   notes:'IRM rachidienne indispensable. Biopsie disco-vertébrale avant ATB si possible. Immobilisation initiale.'},
+
+  {id:'candida_inv', cat:'fongique', label:'Candidose invasive / Candidémie',
+   germes:'C. albicans, C. glabrata, C. parapsilosis, C. tropicalis, C. krusei',
+   recs:[
+    {tag:'1ère ligne (réa, tout patient instable)',cls:'bdanger',conds:['std'],txt:'Échinocandine : Caspofungine 70mg J1 → 50mg/j ou Micafungine 100mg/j'},
+    {tag:'Patient stable / C. albicans documenté',cls:'bok',conds:['std'],txt:'Fluconazole 800mg J1 → 400mg/j (si sensible, pas de traitement FQ récent)'},
+    {tag:'C. glabrata',cls:'bwarn',conds:['std'],txt:'Échinocandine préférée (résistance fluconazole fréquente)'},
+    {tag:'Neutropénie fébrile prolongée (>10j)',cls:'bwarn',conds:['immuno'],txt:'Échinocandine + Voriconazole ou Ampho B lipos. (couvrir moisissures)'},
+   ],
+   duree:'14j après dernière hémoculture négative',
+   renal:'Fluconazole : réduire de 50% si DFG<50. Échinocandines : pas d\'ajust (hépatique).',
+   notes:'Fond d\'œil OBLIGATOIRE. Retrait cathéter. Écho cardiaque. Hémocultures contrôle à 48h. Score de Candida.'},
+
+  {id:'aspergillose', cat:'fongique', label:'Aspergillose invasive pulmonaire',
+   germes:'Aspergillus fumigatus, flavus, niger',
+   recs:[
+    {tag:'1ère ligne',cls:'bdanger',conds:['std'],txt:'Voriconazole 6mg/kg/12h J1 → 4mg/kg/12h IV puis PO'},
+    {tag:'Alternative (moins interactions)',cls:'bok',conds:['std'],txt:'Isavuconazole 200mg/8h x6 → 200mg/j IV ou PO'},
+    {tag:'Résistance azolée suspectée',cls:'bwarn',conds:['std'],txt:'Amphotéricine B liposomale 3mg/kg/j'},
+    {tag:'Greffe (interactions médicamenteuses ++)',cls:'bwarn',conds:['immuno'],txt:'Isavuconazole préféré à voriconazole'},
+    {tag:'Insuffisance rénale sévère',cls:'bwarn',conds:['age'],txt:'Voriconazole PO préféré à IV (cyclodextrine accumule si DFG<50)'},
+   ],
+   duree:'6–12 semaines (selon résolution TDM et levée immunosuppression)',
+   renal:'Voriconazole IV : cyclodextrine accumule si DFG<50 → PO préféré.',
+   notes:'TDM thoracique + galactomannane sérique/LBA. Trough voriconazole cible 1–5 mg/L.'},
+];
+
+var ATB_FAMILIES = [
+  {name:'Pénicillines', list:['Amoxicilline','Amoxicilline-clavulanate','Pipéracilline-Tazobactam','Oxacilline']},
+  {name:'Céphalosporines', list:['Céfazoline','Céfoxitine','Céfotaxime','Ceftriaxone','Céfépime','Ceftazidime','Ceftazidime-avibactam']},
+  {name:'Monobactams / Carbapénèmes', list:['Aztréonam','Ertapénème','Imipénème','Méropénème']},
+  {name:'Glycopeptides / Lipopeptides', list:['Vancomycine','Téicoplanine','Daptomycine','Linézolide']},
+  {name:'Aminosides', list:['Amikacine','Gentamicine','Tobramycine']},
+  {name:'Fluoroquinolones', list:['Ciprofloxacine','Lévofloxacine','Moxifloxacine']},
+  {name:'Divers', list:['Métronidazole','Clindamycine','Cotrimoxazole','Rifampicine','Fosfomycine']},
+  {name:'Antifongiques', list:['Fluconazole','Caspofungine','Micafungine','Voriconazole','Amphotéricine B lipos.']},
+];
+var ALL_ATBS = [];
+ATB_FAMILIES.forEach(function(f){ f.list.forEach(function(a){ ALL_ATBS.push(a); }); });
+
+var GERMS = [
+  {id:'sams', label:'S. aureus (SAMS)', cat:'gp'},
+  {id:'samr', label:'S. aureus (SARM)', cat:'gp'},
+  {id:'scn',  label:'Staph. coagulase-nég.', cat:'gp'},
+  {id:'spneu',label:'S. pneumoniae', cat:'gp'},
+  {id:'stra', label:'Streptocoque A', cat:'gp'},
+  {id:'efs',  label:'E. faecalis', cat:'gp'},
+  {id:'efm',  label:'E. faecium (ERV)', cat:'gp'},
+  {id:'eco',  label:'E. coli (sauvage)', cat:'gn'},
+  {id:'ecob', label:'E. coli BLSE', cat:'gn'},
+  {id:'kpns', label:'K. pneumoniae (S)', cat:'gn'},
+  {id:'kpnb', label:'K. pneumoniae BLSE', cat:'gn'},
+  {id:'kpne', label:'K. pneumoniae EPC', cat:'gn'},
+  {id:'psa',  label:'P. aeruginosa', cat:'gn'},
+  {id:'aci',  label:'A. baumannii', cat:'gn'},
+  {id:'hinf', label:'H. influenzae', cat:'gn'},
+  {id:'bfrag',label:'Bacteroides fragilis', cat:'an'},
+  {id:'clos', label:'Clostridium sp.', cat:'an'},
+  {id:'myco', label:'Mycoplasma pneum.', cat:'at'},
+  {id:'legi', label:'Legionella pneum.', cat:'at'},
+  {id:'calb', label:'C. albicans', cat:'fo'},
+  {id:'cgla', label:'C. glabrata', cat:'fo'},
+  {id:'aspe', label:'Aspergillus sp.', cat:'fo'},
+];
+
+// S=sensible I=intermédiaire R=résistant V=variable
+var SP = {
+  'Amoxicilline':             {sams:'I',samr:'R',scn:'R',spneu:'S',stra:'S',efs:'S',efm:'R',eco:'V',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'V',bfrag:'R',clos:'S',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Amoxicilline-clavulanate': {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'S',efm:'R',eco:'S',ecob:'R',kpns:'S',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'S',bfrag:'S',clos:'S',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Pipéracilline-Tazobactam': {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'S',efm:'R',eco:'S',ecob:'R',kpns:'S',kpnb:'R',kpne:'R',psa:'S',aci:'I',hinf:'S',bfrag:'S',clos:'S',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Oxacilline':               {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'R',efm:'R',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'—',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Céfazoline':               {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'R',efm:'R',eco:'S',ecob:'R',kpns:'S',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'—',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Céfoxitine':               {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'R',efm:'R',eco:'S',ecob:'R',kpns:'S',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'S',bfrag:'S',clos:'—',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Céfotaxime':               {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'R',efm:'R',eco:'S',ecob:'R',kpns:'S',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'S',bfrag:'R',clos:'—',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Ceftriaxone':              {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'R',efm:'R',eco:'S',ecob:'R',kpns:'S',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'S',bfrag:'R',clos:'—',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Céfépime':                 {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'R',efm:'R',eco:'S',ecob:'R',kpns:'S',kpnb:'R',kpne:'R',psa:'S',aci:'I',hinf:'S',bfrag:'R',clos:'—',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Ceftazidime':              {sams:'I',samr:'R',scn:'R',spneu:'I',stra:'R',efs:'R',efm:'R',eco:'S',ecob:'R',kpns:'S',kpnb:'R',kpne:'R',psa:'S',aci:'I',hinf:'S',bfrag:'R',clos:'—',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Ceftazidime-avibactam':    {sams:'S',samr:'R',scn:'R',spneu:'S',stra:'R',efs:'R',efm:'R',eco:'S',ecob:'S',kpns:'S',kpnb:'S',kpne:'S',psa:'S',aci:'I',hinf:'S',bfrag:'R',clos:'—',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Aztréonam':                {sams:'R',samr:'R',scn:'R',spneu:'R',stra:'R',efs:'R',efm:'R',eco:'S',ecob:'R',kpns:'S',kpnb:'R',kpne:'R',psa:'S',aci:'R',hinf:'S',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Ertapénème':               {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'R',efm:'R',eco:'S',ecob:'S',kpns:'S',kpnb:'S',kpne:'R',psa:'R',aci:'R',hinf:'S',bfrag:'S',clos:'S',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Imipénème':                {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'S',efm:'R',eco:'S',ecob:'S',kpns:'S',kpnb:'S',kpne:'R',psa:'S',aci:'V',hinf:'S',bfrag:'S',clos:'S',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Méropénème':               {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'S',efm:'R',eco:'S',ecob:'S',kpns:'S',kpnb:'S',kpne:'R',psa:'S',aci:'V',hinf:'S',bfrag:'S',clos:'S',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Vancomycine':              {sams:'S',samr:'S',scn:'S',spneu:'S',stra:'S',efs:'S',efm:'R',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'S',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Téicoplanine':             {sams:'S',samr:'S',scn:'S',spneu:'S',stra:'S',efs:'S',efm:'R',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'S',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Daptomycine':              {sams:'S',samr:'S',scn:'S',spneu:'S',stra:'S',efs:'S',efm:'S',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Linézolide':               {sams:'S',samr:'S',scn:'S',spneu:'S',stra:'S',efs:'S',efm:'S',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'S',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Amikacine':                {sams:'S',samr:'V',scn:'V',spneu:'R',stra:'R',efs:'V',efm:'V',eco:'S',ecob:'S',kpns:'S',kpnb:'S',kpne:'V',psa:'S',aci:'S',hinf:'S',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Gentamicine':              {sams:'S',samr:'V',scn:'V',spneu:'R',stra:'R',efs:'V',efm:'V',eco:'S',ecob:'V',kpns:'S',kpnb:'V',kpne:'V',psa:'S',aci:'S',hinf:'S',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Tobramycine':              {sams:'S',samr:'V',scn:'V',spneu:'R',stra:'R',efs:'V',efm:'V',eco:'S',ecob:'V',kpns:'S',kpnb:'V',kpne:'V',psa:'S',aci:'S',hinf:'S',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Ciprofloxacine':           {sams:'V',samr:'R',scn:'V',spneu:'I',stra:'R',efs:'R',efm:'R',eco:'S',ecob:'V',kpns:'S',kpnb:'V',kpne:'R',psa:'S',aci:'V',hinf:'S',bfrag:'R',clos:'R',myco:'S',legi:'S',calb:'R',cgla:'R',aspe:'R'},
+  'Lévofloxacine':            {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'I',efm:'R',eco:'S',ecob:'V',kpns:'S',kpnb:'V',kpne:'R',psa:'I',aci:'V',hinf:'S',bfrag:'R',clos:'R',myco:'S',legi:'S',calb:'R',cgla:'R',aspe:'R'},
+  'Moxifloxacine':            {sams:'S',samr:'R',scn:'V',spneu:'S',stra:'S',efs:'I',efm:'R',eco:'V',ecob:'R',kpns:'S',kpnb:'R',kpne:'R',psa:'R',aci:'V',hinf:'S',bfrag:'S',clos:'R',myco:'S',legi:'S',calb:'R',cgla:'R',aspe:'R'},
+  'Métronidazole':            {sams:'R',samr:'R',scn:'R',spneu:'R',stra:'R',efs:'R',efm:'R',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'S',clos:'S',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Clindamycine':             {sams:'S',samr:'V',scn:'V',spneu:'V',stra:'S',efs:'R',efm:'R',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'V',clos:'V',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Cotrimoxazole':            {sams:'S',samr:'V',scn:'V',spneu:'V',stra:'R',efs:'R',efm:'R',eco:'V',ecob:'V',kpns:'V',kpnb:'V',kpne:'R',psa:'R',aci:'V',hinf:'S',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Rifampicine':              {sams:'S',samr:'S',scn:'S',spneu:'S',stra:'S',efs:'V',efm:'V',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'S',bfrag:'R',clos:'R',myco:'R',legi:'S',calb:'R',cgla:'R',aspe:'R'},
+  'Fosfomycine':              {sams:'S',samr:'V',scn:'V',spneu:'V',stra:'V',efs:'V',efm:'R',eco:'S',ecob:'S',kpns:'S',kpnb:'V',kpne:'V',psa:'V',aci:'R',hinf:'V',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'R',cgla:'R',aspe:'R'},
+  'Fluconazole':              {sams:'R',samr:'R',scn:'R',spneu:'R',stra:'R',efs:'R',efm:'R',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'S',cgla:'I',aspe:'R'},
+  'Caspofungine':             {sams:'R',samr:'R',scn:'R',spneu:'R',stra:'R',efs:'R',efm:'R',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'S',cgla:'S',aspe:'S'},
+  'Micafungine':              {sams:'R',samr:'R',scn:'R',spneu:'R',stra:'R',efs:'R',efm:'R',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'S',cgla:'S',aspe:'S'},
+  'Voriconazole':             {sams:'R',samr:'R',scn:'R',spneu:'R',stra:'R',efs:'R',efm:'R',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'S',cgla:'S',aspe:'S'},
+  'Amphotéricine B lipos.':   {sams:'R',samr:'R',scn:'R',spneu:'R',stra:'R',efs:'R',efm:'R',eco:'R',ecob:'R',kpns:'R',kpnb:'R',kpne:'R',psa:'R',aci:'R',hinf:'R',bfrag:'R',clos:'R',myco:'R',legi:'R',calb:'S',cgla:'S',aspe:'S'},
+};
+
+// Mapping infection → germes incriminés selon résistance
+var INF_GERMES = {
+  pac:         {std:['spneu','hinf','myco','legi'],       noso:['spneu','psa','kpns','sams'],   blse:['ecob','kpnb'],   samr:['samr'],              epc:['kpne']},
+  pavm:        {std:['psa','kpns','sams','eco'],           noso:['psa','aci','kpnb','samr'],     blse:['ecob','kpnb','psa'], samr:['samr','psa'],    epc:['kpne','psa','aci']},
+  pleurite:    {std:['spneu','stra','sams','bfrag'],       noso:['psa','samr','kpnb'],           blse:['ecob','kpnb'],   samr:['samr'],              epc:['kpne']},
+  abces_pulm:  {std:['bfrag','clos','sams','kpns'],        noso:['psa','samr','kpnb'],           blse:['kpnb','ecob'],   samr:['samr'],              epc:['kpne']},
+  pyelo:       {std:['eco','kpns','efs'],                  noso:['ecob','kpnb','psa'],           blse:['ecob','kpnb'],   samr:['efm'],               epc:['kpne']},
+  itu:         {std:['eco','kpns','efs'],                  noso:['ecob','psa','efm'],            blse:['ecob','kpnb'],   samr:['samr'],              epc:['kpne']},
+  prostatite:  {std:['eco','kpns'],                        noso:['ecob','psa'],                  blse:['ecob','kpnb'],   samr:['samr'],              epc:['kpne']},
+  perit:       {std:['eco','kpns','bfrag','efs'],          noso:['ecob','psa','efm','calb'],     blse:['ecob','kpnb','bfrag'], samr:['samr','efm'], epc:['kpne','bfrag']},
+  cholangite:  {std:['eco','kpns','efs','bfrag'],          noso:['ecob','psa','efm'],            blse:['ecob','kpnb'],   samr:['efm'],               epc:['kpne']},
+  abdominal:   {std:['eco','kpns','bfrag','efs'],          noso:['ecob','psa','bfrag','calb'],   blse:['ecob','kpnb','bfrag'], samr:['samr'],        epc:['kpne']},
+  menin:       {std:['spneu','efs'],                       noso:['kpnb','psa','samr','ecob'],    blse:['ecob','kpnb'],   samr:['samr'],              epc:['kpne']},
+  abces_cerv:  {std:['stra','bfrag','sams'],               noso:['samr','kpnb','psa'],           blse:['ecob','kpnb'],   samr:['samr'],              epc:['kpne']},
+  endo:        {std:['stra','efs','sams','scn'],           noso:['samr','efm','scn'],            blse:['ecob'],          samr:['samr'],              epc:['kpne']},
+  bacterie:    {std:['eco','kpns','sams','efs'],           noso:['ecob','psa','samr','kpnb'],    blse:['ecob','kpnb'],   samr:['samr'],              epc:['kpne','psa']},
+  cath_inf:    {std:['scn','sams','calb'],                 noso:['samr','ecob','cgla'],          blse:['ecob'],          samr:['samr'],              epc:['kpne']},
+  fasciite:    {std:['stra','bfrag','eco','sams'],         noso:['samr','psa','bfrag'],          blse:['ecob','kpnb','bfrag'], samr:['samr','stra'], epc:['kpne']},
+  erysipele:   {std:['stra','sams'],                       noso:['samr'],                        blse:[],                samr:['samr'],              epc:[]},
+  osteite:     {std:['sams','stra','eco'],                 noso:['samr','ecob','psa'],           blse:['ecob','kpnb'],   samr:['samr'],              epc:['kpne']},
+  arthrite:    {std:['sams','stra','spneu'],               noso:['samr','ecob','psa'],           blse:['ecob'],          samr:['samr'],              epc:['kpne']},
+  spondylo:    {std:['sams','eco','kpns'],                 noso:['samr','ecob','psa'],           blse:['ecob','kpnb'],   samr:['samr'],              epc:['kpne']},
+  candida_inv: {std:['calb','cgla'],                       noso:['calb','cgla'],                 blse:[],                samr:[],                    epc:[]},
+  aspergillose:{std:['aspe'],                              noso:['aspe'],                        blse:[],                samr:[],                    epc:[]},
+};
+
+// ══════════ STATE ══════════
+var selectedATBs = [];
+var germFilter = 'all';
+var targetGermIds = [];
+
+// ══════════ GUIDE ATB ══════════
+function populateInfections() {
+  var cat = document.getElementById('g-cat').value;
+  var sel = document.getElementById('g-inf');
+  sel.innerHTML = '<option value="">— Choisir une infection —</option>';
+  INFECTIONS.forEach(function(inf) {
+    if (!cat || inf.cat === cat) {
+      var opt = document.createElement('option');
+      opt.value = inf.id;
+      opt.textContent = inf.label;
+      sel.appendChild(opt);
+    }
+  });
+  document.getElementById('g-result').innerHTML = '';
+}
+
+function afficherReco() {
+  var infId = document.getElementById('g-inf').value;
+  if (!infId) {
+    document.getElementById('g-result').innerHTML = '<div class="sec"><p style="color:var(--txt2);font-size:13px">Veuillez choisir une infection.</p></div>';
+    return;
+  }
+  var inf = null;
+  for (var i = 0; i < INFECTIONS.length; i++) {
+    if (INFECTIONS[i].id === infId) { inf = INFECTIONS[i]; break; }
+  }
+  if (!inf) return;
+
+  var resist = document.getElementById('g-resist').value;
+  var terrain = document.getElementById('g-terrain').value;
+  var allergie = document.getElementById('g-allergie').value;
+  var renal = document.getElementById('g-renal').value;
+
+  var html = '<div class="sec">';
+  html += '<div class="stitle">💊 ' + inf.label + '</div>';
+  html += '<div class="ibox"><b>Germes principaux :</b> ' + inf.germes + '</div>';
+
+  // Alertes contextuelles
+  if (resist === 'blse') html += '<div class="wbox">⚠ BLSE suspecté — Carbapénème recommandé. Éviter C3G et Pipéracilline-Tazobactam.</div>';
+  if (resist === 'samr') html += '<div class="wbox">⚠ SARM suspecté — Vancomycine ou Daptomycine indispensable. Pas d\'oxacilline.</div>';
+  if (resist === 'epc')  html += '<div class="dbox">🚨 EPC / Carbapénémase — Options très limitées. Consultation infectiologue OBLIGATOIRE.</div>';
+  if (resist === 'noso') html += '<div class="wbox">⚠ Contexte nosocomial — Spectre élargi aux BGN résistants et SARM.</div>';
+  if (allergie === 'oui') html += '<div class="wbox">⚠ Allergie pénicilline — Éviter les bêtalactamines. Alternatives disponibles.</div>';
+  if (terrain === 'immuno') html += '<div class="wbox">⚠ Immunodéprimé — Couvrir les germes opportunistes selon le type d\'immunodépression.</div>';
+  if (terrain === 'gros') html += '<div class="wbox">⚠ Grossesse — CI : FQ, tétracyclines, aminosides prolongés, cotrimoxazole T3.</div>';
+  if (renal !== 'ok') html += '<div class="wbox">⚠ Insuffisance rénale — Adapter les posologies (voir ci-dessous).</div>';
+
+  // Construire la liste des conditions actives
+  var activeConds = ['std'];
+  if (resist === 'blse') activeConds.push('blse');
+  if (resist === 'samr') activeConds.push('samr');
+  if (resist === 'epc')  activeConds.push('epc');
+  if (resist === 'noso') activeConds.push('noso');
+  if (allergie === 'oui') activeConds.push('aller');
+  if (terrain === 'immuno') activeConds.push('immuno');
+  if (terrain === 'gros')   activeConds.push('gros');
+  if (terrain === 'diab')   activeConds.push('diab');
+  if (terrain === 'cirr')   activeConds.push('cirr');
+  if (terrain === 'drepa')  activeConds.push('drepa');
+  if (terrain === 'age')    activeConds.push('age');
+
+  // Filtrer les recommandations
+  var recs = inf.recs.filter(function(r) {
+    return r.conds.some(function(c) { return activeConds.indexOf(c) >= 0; });
+  });
+  if (recs.length === 0) {
+    recs = inf.recs.filter(function(r) { return r.conds.indexOf('std') >= 0; });
+  }
+
+  recs.forEach(function(r) {
+    html += '<div class="rcard">';
+    html += '<div class="rcard-t"><span class="' + r.cls + '">' + r.tag + '</span></div>';
+    html += '<div class="rcard-b"><b>' + r.txt + '</b></div>';
+    html += '</div>';
+  });
+
+  html += '<div class="rbox">';
+  html += '<div class="rr"><span style="color:var(--txt2)">Durée recommandée</span><span class="binfo">' + inf.duree + '</span></div>';
+  if (renal !== 'ok') {
+    html += '<div class="rr"><span style="color:var(--txt2)">Adaptation rénale</span><span style="color:var(--amber);font-family:var(--mono);font-size:11px;text-align:right;max-width:60%">' + inf.renal + '</span></div>';
+  }
+  html += '</div>';
+  if (inf.notes) html += '<div class="ibox"><b style="color:var(--blue)">💡 Points clés :</b><br>' + inf.notes + '</div>';
+  html += '</div>';
+  document.getElementById('g-result').innerHTML = html;
+}
+
+// ══════════ SPECTRE & TROU ══════════
+function onInfChange() {
+  var infId = document.getElementById('s-inf').value;
+  var resist = document.getElementById('s-resist').value;
+  if (!infId) {
+    targetGermIds = [];
+    document.getElementById('s-germes-row').style.display = 'none';
+    buildTable(); calcGap(); return;
+  }
+  var mapping = INF_GERMES[infId] || {};
+  targetGermIds = mapping[resist] || mapping['std'] || [];
+  // Afficher germes
+  document.getElementById('s-germes-row').style.display = 'block';
+  var pills = '';
+  targetGermIds.forEach(function(gid) {
+    var g = null;
+    for (var i = 0; i < GERMS.length; i++) { if (GERMS[i].id === gid) { g = GERMS[i]; break; } }
+    if (g) pills += '<span class="gpill">' + g.label + '</span>';
+  });
+  document.getElementById('s-germes-pills').innerHTML = pills;
+  buildTable(); calcGap();
+}
+
+function addATB() {
+  var sel = document.getElementById('s-atb-add');
+  var val = sel.value;
+  if (!val) return;
+  for (var i = 0; i < selectedATBs.length; i++) { if (selectedATBs[i] === val) return; }
+  selectedATBs.push(val);
+  sel.value = '';
+  renderPills(); buildTable(); calcGap();
+}
+
+function removeATB(atb) {
+  selectedATBs = selectedATBs.filter(function(a) { return a !== atb; });
+  renderPills(); buildTable(); calcGap();
+}
+
+function renderPills() {
+  var html = '';
+  selectedATBs.forEach(function(a) {
+    html += '<span class="pill">' + a + '<button onclick="removeATB(\'' + a + '\')">×</button></span>';
+  });
+  document.getElementById('s-atb-pills').innerHTML = html;
+}
+
+function setGermFilter(f, btn) {
+  germFilter = f;
+  document.querySelectorAll('.fbtn').forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+  buildTable();
+}
+
+function buildTable() {
+  var germs = GERMS.filter(function(g) {
+    if (germFilter === 'all') return true;
+    return g.cat === germFilter;
+  });
+
+  var html = '<tr>';
+  html += '<th class="atb-h">ATB \\ Germe</th>';
+  germs.forEach(function(g) {
+    var isTgt = targetGermIds.indexOf(g.id) >= 0;
+    html += '<th class="germ-h' + (isTgt ? ' tgt' : '') + '">' + g.label + '</th>';
+  });
+  html += '</tr>';
+
+  ATB_FAMILIES.forEach(function(fam) {
+    html += '<tr class="fam"><td colspan="' + (germs.length + 1) + '">' + fam.name + '</td></tr>';
+    fam.list.forEach(function(atb) {
+      var isSel = selectedATBs.indexOf(atb) >= 0;
+      html += '<tr>';
+      html += '<td class="atb-n' + (isSel ? ' sel' : '') + '">' + atb + (isSel ? ' ◀' : '') + '</td>';
+      germs.forEach(function(g) {
+        var val = (SP[atb] && SP[atb][g.id]) ? SP[atb][g.id] : '—';
+        var vc = val === 'S' ? 'cs' : val === 'I' ? 'ci' : val === 'R' ? 'cr' : val === 'V' ? 'cv' : 'cn';
+        var gc = '';
+        if (isSel && targetGermIds.indexOf(g.id) >= 0) {
+          gc = val === 'S' ? ' gap-ok' : (val === 'I' || val === 'V') ? ' gap-part' : ' gap-miss';
+        }
+        html += '<td class="sc ' + vc + gc + '">' + val + '</td>';
+      });
+      html += '</tr>';
+    });
+  });
+
+  document.getElementById('sp-table').innerHTML = html;
+}
+
+function calcGap() {
+  if (!selectedATBs.length || !targetGermIds.length) {
+    document.getElementById('s-gap-result').innerHTML = ''; return;
+  }
+
+  var results = targetGermIds.map(function(gid) {
+    var g = null;
+    for (var i = 0; i < GERMS.length; i++) { if (GERMS[i].id === gid) { g = GERMS[i]; break; } }
+    var vals = selectedATBs.map(function(atb) { return {atb: atb, val: (SP[atb] && SP[atb][gid]) ? SP[atb][gid] : 'R'}; });
+    var covered = vals.some(function(v) { return v.val === 'S'; });
+    var partial  = !covered && vals.some(function(v) { return v.val === 'I' || v.val === 'V'; });
+    var status = covered ? 'ok' : partial ? 'part' : 'miss';
+    var covBy = vals.filter(function(v) { return v.val === 'S'; }).map(function(v) { return v.atb; });
+    var alts = ALL_ATBS.filter(function(a) { return (SP[a] && SP[a][gid] === 'S') && selectedATBs.indexOf(a) < 0; }).slice(0,3);
+    return {g: g, status: status, covBy: covBy, alts: alts};
+  });
+
+  var nOk   = results.filter(function(r) { return r.status === 'ok'; }).length;
+  var nMiss = results.filter(function(r) { return r.status === 'miss'; }).length;
+  var nPart = results.filter(function(r) { return r.status === 'part'; }).length;
+
+  var html = '<div style="margin-top:8px">';
+  if (nMiss === 0 && nPart === 0) {
+    html += '<div class="gbox">✅ <b>Spectre complet</b> — tous les germes incriminés sont couverts par votre association ATB.</div>';
+  } else if (nOk === 0 && nPart === 0) {
+    html += '<div class="dbox">🚨 <b>Trou de spectre majeur</b> — aucun germe incriminé n\'est couvert par cette ATB.</div>';
+  } else {
+    html += '<div class="wbox">⚠ <b>Couverture partielle</b> — ' + nOk + ' couvert(s), ' + nMiss + ' trou(s) de spectre, ' + nPart + ' couverture intermédiaire.</div>';
+  }
+
+  results.forEach(function(r) {
+    var icon  = r.status === 'ok' ? '✓' : r.status === 'part' ? '~' : '✗';
+    var color = r.status === 'ok' ? 'var(--green)' : r.status === 'part' ? 'var(--amber)' : 'var(--red)';
+    var bg    = r.status === 'ok' ? 'rgba(102,187,106,.07)' : r.status === 'part' ? 'rgba(255,167,38,.07)' : 'rgba(239,83,80,.07)';
+    html += '<div style="padding:7px 10px;background:' + bg + ';border-radius:6px;margin-bottom:4px;font-size:12px">';
+    html += '<span style="font-weight:700;color:' + color + ';font-family:var(--mono);margin-right:7px">' + icon + '</span>';
+    html += '<b>' + (r.g ? r.g.label : gid) + '</b>';
+    if (r.covBy.length) html += ' <span style="font-family:var(--mono);font-size:10px;color:var(--txt2)">→ ' + r.covBy.join(', ') + '</span>';
+    if (r.status === 'miss' && r.alts.length) html += '<div style="font-size:11px;color:var(--txt2);margin-top:3px">ATB actifs à ajouter : ' + r.alts.map(function(a) { return '<span class="bok">' + a + '</span>'; }).join(' ') + '</div>';
+    if (r.status === 'part') html += '<div style="font-size:11px;color:var(--txt2);margin-top:3px">Activité variable — confirmer sur antibiogramme local</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  document.getElementById('s-gap-result').innerHTML = html;
+}
+
+function showPage(id) {
+  document.getElementById('page-guide').classList.remove('on');
+  document.getElementById('page-spectre').classList.remove('on');
+  document.getElementById('tab-guide').classList.remove('on');
+  document.getElementById('tab-spectre').classList.remove('on');
+  document.getElementById('page-' + id).classList.add('on');
+  document.getElementById('tab-' + id).classList.add('on');
+  if (id === 'spectre') buildTable();
+}
+
+function updateClock() {
+  var d = new Date();
+  document.getElementById('clock').textContent = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+}
+
+// ══════════ INIT ══════════
+window.addEventListener('load', function() {
+  // Remplir select ATB
+  var sel = document.getElementById('s-atb-add');
+  ALL_ATBS.forEach(function(a) {
+    var opt = document.createElement('option');
+    opt.value = a; opt.textContent = a;
+    sel.appendChild(opt);
+  });
+
+  // Lier les événements
+  document.getElementById('g-cat').addEventListener('change', populateInfections);
+  document.getElementById('s-inf').addEventListener('change', onInfChange);
+  document.getElementById('s-resist').addEventListener('change', onInfChange);
+
+  // Init
+  populateInfections();
+  buildTable();
+  updateClock();
+  setInterval(updateClock, 30000);
+});
+</script>
+</body>
+</html>
